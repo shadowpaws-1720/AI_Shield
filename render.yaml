@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: aishield-demo
+    env: python
+    plan: free
+    buildCommand: |
+      if [ -f requirements.txt ]; then
+        pip install -r requirements.txt
+      elif [ -f AIShield_Demo/requirements.txt ]; then
+        cd AIShield_Demo && pip install -r requirements.txt
+      else
+        echo "requirements.txt not found" && exit 1
+      fi
+    startCommand: |
+      if [ -f run.py ]; then
+        gunicorn run:app
+      elif [ -f AIShield_Demo/run.py ]; then
+        cd AIShield_Demo && gunicorn run:app
+      else
+        echo "run.py not found" && exit 1
+      fi
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///aishield.db
